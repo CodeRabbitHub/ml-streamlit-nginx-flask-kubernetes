@@ -1,0 +1,11 @@
+apiVersion: v1         # API version for defining Service resources
+kind: Service          # Specifies that this is a Service resource
+metadata:
+  name: flask-api      # Unique name for the Service
+spec:
+  selector:
+    app: flask-api     # Label selector used to identify the pods targeted by this Service
+  ports:
+    - protocol: TCP    # Network protocol used by the Service
+      port: 5000       # Port on which the Service exposes itself
+      targetPort: 5000 # Port on the container to which traffic is forwarded

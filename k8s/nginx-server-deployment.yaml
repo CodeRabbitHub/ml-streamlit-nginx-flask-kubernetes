@@ -1,0 +1,33 @@
+apiVersion: apps/v1  # Defines the API version for managing Deployment resources
+kind: Deployment    # Specifies that this resource is a Deployment
+metadata:
+  name: nginx-server  # Unique name for the Deployment
+spec:
+  replicas: 1       # Number of pod replicas to be maintained
+  selector:
+    matchLabels:
+      app: nginx-server  # Label selector for identifying the pods managed by this Deployment
+  template:
+    metadata:
+      labels:
+        app: nginx-server  # Labels applied to the pods for grouping and service discovery
+    spec:
+      containers:
+      - name: nginx-server  # Name of the container within the pod
+        image: amanroland/iris-nginx-server:v1.0.0  # Docker image used for the container
+        ports:
+        - containerPort: 80   # Port on which the container listens for HTTP traffic
+        - containerPort: 443  # Port on which the container listens for HTTPS traffic
+        volumeMounts:
+        - name: certs
+          mountPath: /etc/ssl/certs/nginx-selfsigned.crt  # Path within the container to mount the certificate file
+          subPath: nginx-selfsigned.crt  # Specific file from the secret to mount
+          readOnly: true  # Ensures the file is mounted as read-only
+        - name: certs
+          mountPath: /etc/ssl/certs/nginx-selfsigned.key  # Path within the container to mount the key file
+          subPath: nginx-selfsigned.key  # Specific file from the secret to mount
+          readOnly: true  # Ensures the file is mounted as read-only
+      volumes:
+      - name: certs
+        secret:
+          secretName: nginx-certs  # Name of the secret containing the certificate and key

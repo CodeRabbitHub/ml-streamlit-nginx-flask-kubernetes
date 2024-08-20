@@ -1,0 +1,22 @@
+apiVersion: apps/v1  # Defines the API version for managing Deployment resources
+kind: Deployment    # Specifies that this resource is a Deployment
+metadata:
+  name: streamlit-ui  # Unique name for the Deployment
+spec:
+  replicas: 1       # Number of pod replicas to be maintained
+  selector:
+    matchLabels:
+      app: streamlit-ui  # Label selector for identifying the pods managed by this Deployment
+  template:
+    metadata:
+      labels:
+        app: streamlit-ui  # Labels applied to the pods for grouping and service discovery
+    spec:
+      containers:
+      - name: streamlit-ui  # Name of the container within the pod
+        image: amanroland/iris-streamlit:v1.0.0  # Docker image used for the container
+        ports:
+        - containerPort: 8501  # Port on which the container listens for Streamlit traffic
+        env:
+        - name: FLASK_API_URL  # Environment variable for specifying the URL of the Flask API
+          value: "http://flask-api:5000/predict"  # URL of the Flask API for predictions

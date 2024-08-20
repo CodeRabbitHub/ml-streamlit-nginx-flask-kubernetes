@@ -1,0 +1,4 @@
+Flask==3.0.3
+gunicorn==23.0.0
+scikit-learn==1.5.1
+xgboost==2.1.1

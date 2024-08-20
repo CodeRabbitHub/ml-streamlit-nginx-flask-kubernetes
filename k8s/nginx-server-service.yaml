@@ -1,0 +1,17 @@
+apiVersion: v1         # Defines the API version for managing Service resources
+kind: Service          # Specifies that this resource is a Service
+metadata:
+  name: nginx-server  # Unique name for the Service
+spec:
+  selector:
+    app: nginx-server  # Label selector used to match the pods that this Service targets
+  ports:
+    - name: http       # Name for the HTTP port
+      protocol: TCP    # Protocol used by the Service
+      port: 80         # Port on which the Service is exposed
+      targetPort: 80   # Port on the container to which traffic is forwarded
+    - name: https      # Name for the HTTPS port
+      protocol: TCP    # Protocol used by the Service
+      port: 443        # Port on which the Service is exposed for HTTPS
+      targetPort: 443  # Port on the container to which HTTPS traffic is forwarded
+  type: LoadBalancer   # Type of Service that provisions a load balancer for external access

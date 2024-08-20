@@ -1,0 +1,19 @@
+apiVersion: apps/v1  # API version for Deployment
+kind: Deployment    # Resource type
+metadata:
+  name: flask-api   # Name of the Deployment
+spec:
+  replicas: 1       # Number of pod replicas
+  selector:
+    matchLabels:
+      app: flask-api  # Selector for matching pods
+  template:
+    metadata:
+      labels:
+        app: flask-api  # Labels for the pod
+    spec:
+      containers:
+      - name: flask-api  # Container name
+        image: amanroland/iris-flask-app:v1.0.0  # Container image
+        ports:
+        - containerPort: 5000  # Port the container listens on

@@ -1,0 +1,17 @@
+# Use the official slim variant of Python 3.12 as the base image
+FROM python:3.12-slim
+
+# Set the working directory inside the container to /app
+WORKDIR /app
+
+# Copy the Flask application and model files into the working directory
+COPY flask_app/ .
+
+# Install the required Python packages using pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose port 5000 to allow external access to the Flask app
+EXPOSE 5000
+
+# Start the Flask application using Gunicorn with 4 worker processes
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
