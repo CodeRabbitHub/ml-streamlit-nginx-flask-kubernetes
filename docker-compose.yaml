@@ -1,0 +1,45 @@
+version: '3.8'  # Docker Compose file format version
+
+services:
+  flask-api:
+    build:
+      context: .  # Build context is the current directory
+      dockerfile: Dockerfile.flask-api  # Dockerfile for Flask service
+    container_name: flask-api  # Container name
+    networks:
+      - iris-network  # Connect to the custom network
+    ports:
+      - "5000:5000"  # Expose port 5000
+
+  streamlit-ui:
+    build:
+      context: .  # Build context is the current directory
+      dockerfile: Dockerfile.streamlit-ui  # Dockerfile for Streamlit service
+    container_name: streamlit-ui  # Container name
+    networks:
+      - iris-network  # Connect to the custom network
+    ports:
+      - "8501:8501"  # Expose port 8501
+    environment:
+      - FLASK_API_URL=http://flask-api:5000/predict  # Correct URL scheme
+    depends_on:
+      - flask-api  # Ensure the Flask service is started before Streamlit
+
+  nginx-server:
+    build:
+      context: .  # Build context is the current directory
+      dockerfile: Dockerfile.nginx-server  # Dockerfile specific to Nginx
+    container_name: nginx-server  # Name of the Nginx container
+    networks:
+      - iris-network  # Attach the Nginx container to the custom network
+    ports:
+      - "443:443"  # Map port 443 on the host to port 443 in the container for HTTPS
+      - "80:80"    # Map port 80 on the host to port 80 in the container for HTTP
+    depends_on:
+      - streamlit-ui  # Ensure the Streamlit service is started before Nginx
+    volumes:
+      - ./nginx/certs:/etc/ssl/certs:ro # Mounting the SSL certificates as read-only
+
+networks:
+  iris-network:
+    driver: bridge  # Custom network with bridge driver
