@@ -358,9 +358,53 @@ By following this process, the project ensures that all client-server communicat
 
 ---
 
-### Streamlining Kubernetes Deployment with Minikube
+## Streamlining Kubernetes Deployment with Minikube
 
-Minikube is leveraged to create a local Kubernetes cluster, enabling the testing and development of the application in an environment that closely mimics production. The Kubernetes manifests define the deployment of the Flask API, Streamlit UI, and Nginx server, ensuring a seamless and scalable deployment process.
+In our deployment process, we use Kubernetes to manage and orchestrate our containerized applications, ensuring they are scalable and resilient. Here's a summary of how we deploy our services and manage sensitive information, such as SSL certificates, using Kubernetes.
+
+### Deployment Process
+
+1. **Starting Minikube:**
+   - We begin by starting Minikube with default settings to create a local Kubernetes cluster. This local environment allows us to test our deployments before moving to a production environment.
+
+2. **Creating Kubernetes Secrets:**
+   - **Why Use Secrets?** Kubernetes Secrets are used to store sensitive information, such as SSL certificates and keys, securely. By using Secrets, we avoid hardcoding sensitive data into configuration files or environment variables, reducing the risk of exposure.
+   - **Implementation:** We create a Kubernetes Secret for SSL certificates by running the command:
+     ```bash
+     kubectl create secret generic nginx-certs --from-file=nginx/certs/nginx-selfsigned.crt --from-file=nginx/certs/nginx-selfsigned.key
+     ```
+     This command stores the SSL certificate and key as a Kubernetes Secret named `nginx-certs`. The Secret is then used by our Nginx server for SSL termination.
+
+3. **Starting Minikube Tunnel:**
+   - To expose services that use the LoadBalancer type, we start a Minikube tunnel. This step is necessary to ensure that the services are accessible from outside the Minikube cluster.
+
+4. **Deploying Kubernetes Manifests:**
+   - We deploy our services and deployments using Kubernetes manifests. The manifests define the configuration for our Flask API, Streamlit UI, and Nginx server:
+     ```bash
+     kubectl apply -f k8s/flask-api-deployment.yaml
+     kubectl apply -f k8s/streamlit-ui-deployment.yaml
+     kubectl apply -f k8s/nginx-server-deployment.yaml
+     kubectl apply -f k8s/flask-api-service.yaml
+     kubectl apply -f k8s/streamlit-ui-service.yaml
+     kubectl apply -f k8s/nginx-server-service.yaml
+     ```
+     These manifests describe the desired state of our applications and services, including their scaling requirements and networking configurations.
+
+5. **Waiting for Deployments:**
+   - We use `kubectl wait` to ensure that each deployment becomes available. This step helps us confirm that the services are up and running before proceeding with further actions:
+     ```bash
+     kubectl wait --for=condition=available --timeout=90s deployment/flask-api
+     kubectl wait --for=condition=available --timeout=90s deployment/streamlit-ui
+     kubectl wait --for=condition=available --timeout=90s deployment/nginx-server
+     ```
+
+6. **Verifying Services:**
+   - Finally, we list the services in the cluster to verify that the deployments are correctly running and accessible:
+     ```bash
+     kubectl get services
+     ```
+
+By following these steps, we ensure that our deployment is both secure and robust, leveraging Kubernetes' powerful features to manage and scale our applications effectively. Using Kubernetes Secrets for sensitive data management adheres to best practices for security and helps protect critical information from unauthorized access..
 
 ---
 
