@@ -335,9 +335,7 @@ Securing the Nginx server involves generating SSL certificates, which encrypt da
 Use OpenSSL to generate the SSL certificate (`nginx-selfsigned.crt`) and private key (`nginx-selfsigned.key`):
 
 ```bash
-openssl req -x509 -nodes -days 365 -newkey rsa
-
-:2048 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx-selfsigned.key -out nginx-selfsigned.crt
 ```
 
 - **`-x509`**: Creates a self-signed certificate.
