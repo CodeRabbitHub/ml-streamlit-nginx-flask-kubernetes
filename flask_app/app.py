@@ -19,22 +19,25 @@ def predict():
             return (
                 jsonify(
                     {
-                        "error": 'Invalid input. Expected a JSON object with 4 numerical values for the keys: "sepal_length", "sepal_width", "petal_length", "petal_width".'
+                        "error": (
+                            'Invalid input. Expected JSON with keys: "sepal_length", "sepal_width", '
+                            '"petal_length", "petal_width". Example: {"sepal_length": 5.1, "sepal_width": 3.5, '
+                            '"petal_length": 1.4, "petal_width": 0.2}'
+                        )
                     }
                 ),
                 400,
             )
 
         # Extract features from the validated data
-        features = [
-            data["sepal_length"],
-            data["sepal_width"],
-            data["petal_length"],
-            data["petal_width"],
-        ]
-
-        # Convert features to numpy array and reshape for prediction
-        features = np.array(features).reshape(1, -1)
+        features = np.array(
+            [
+                data["sepal_length"],
+                data["sepal_width"],
+                data["petal_length"],
+                data["petal_width"],
+            ]
+        ).reshape(1, -1)
 
         # Predict the class
         prediction = model.predict(features)
@@ -50,20 +53,43 @@ def predict():
 
 
 def validate_input(data):
+    """
+    Validate the input JSON data.
+
+    Args:
+        data (dict): The JSON data to validate.
+
+    Returns:
+        bool: True if the input is valid, otherwise False.
+    """
+    # Required keys and their types
+    required_keys = {
+        "sepal_length": (int, float),
+        "sepal_width": (int, float),
+        "petal_length": (int, float),
+        "petal_width": (int, float),
+    }
+
     # Check if data is a dictionary and contains all required keys
-    required_keys = {"sepal_length", "sepal_width", "petal_length", "petal_width"}
-    if not isinstance(data, dict) or not required_keys.issubset(data.keys()):
+    if not isinstance(data, dict):
+        return False
+    if not all(key in data for key in required_keys):
         return False
 
-    # Validate that all the values are numbers
-    for key in required_keys:
-        if not isinstance(data[key], (int, float)):
-            return False
-
-    return True
+    # Validate that all the values are of the correct type
+    return all(isinstance(data[key], required_keys[key]) for key in required_keys)
 
 
 def get_class_name(class_idx):
+    """
+    Map class index to class name.
+
+    Args:
+        class_idx (int): The index of the class.
+
+    Returns:
+        str: The name of the class corresponding to the index.
+    """
     # Map class index to class name
     class_names = {0: "setosa", 1: "versicolor", 2: "virginica"}
     return class_names.get(class_idx, "unknown")
